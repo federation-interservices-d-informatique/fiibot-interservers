@@ -1,11 +1,27 @@
 version: "3"
+
+networks:
+  fiibot-interserver:
+    external: false
+
 services:
   bot:
-    container_name: "fiibot-dev"
     build:
       context: "./"
       dockerfile: "./Dockerfile.dev"
     volumes:
       - ".:/usr/src/bot"
+    networks:
+      - fiibot-interserver
     env_file:
       - ".env"
+  db:
+    image: "postgres:14.2-alpine"
+    env_file:
+      - ".env"
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    networks:
+      - fiibot-interserver
+    ports:
+      - "5432:5432"

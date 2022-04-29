@@ -1,10 +1,12 @@
-import { fiiClient } from "@federation-interservices-d-informatique/fiibot-common";
 import { getDirname } from "./utils/getdirname.js";
+import { readdir } from "fs/promises";
+import { EventData } from "./typings/eventdata.js";
+import { InterServerClient } from "./classes/Client.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const client = new fiiClient(
+const client = new InterServerClient(
     {
-        intents: ["GUILDS"]
+        intents: ["GUILDS", "GUILD_MESSAGES"]
     },
     {
         commandManagerSettings: {
@@ -14,3 +16,13 @@ const client = new fiiClient(
         token: process.env.BOT_TOKEN
     }
 );
+
+client.on("ready", async () => {
+    for (const file of await readdir(`${getDirname(import.meta.url)}/events`)) {
+        if (!file.endsWith(".js")) continue;
+        const data: EventData = (
+            await import(`${getDirname(import.meta.url)}/events/${file}`)
+        ).default;
+        client.eventManager.registerEvent(data.name, data.type, data.callback);
+    }
+});
