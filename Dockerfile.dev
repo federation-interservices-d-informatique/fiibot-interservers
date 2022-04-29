@@ -8,4 +8,4 @@ RUN npm i -g nodemon
 COPY ./src ./
 COPY ./tsconfig.json ./
 
-CMD nodemon --watch 'src/*' --ext 'ts' --exec 'npm run start-build'
+CMD nodemon --watch 'src/*' --ext 'ts' --exec 'npm run migrate:dev && npm run start-build'
