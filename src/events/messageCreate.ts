@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { Message, TextChannel } from "discord.js";
 import { InterServerClient } from "../classes/Client";
-import { EventData } from "../typings/eventdata";
+import { EventData } from "../typings/index";
 import { INTERSERVER_WH_NAME } from "../utils/constants.js";
 
 const data: EventData = {

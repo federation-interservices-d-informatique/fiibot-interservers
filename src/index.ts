@@ -1,6 +1,6 @@
 import { getDirname } from "./utils/getdirname.js";
 import { readdir } from "fs/promises";
-import { EventData } from "./typings/eventdata.js";
+import { EventData } from "./typings/index.js";
 import { InterServerClient } from "./classes/Client.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
