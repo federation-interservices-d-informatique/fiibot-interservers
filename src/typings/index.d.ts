@@ -5,3 +5,8 @@ export interface EventData {
     name: string;
     callback: (...args: unknown[]) => void;
 }
+
+export interface MessageCloneData {
+    channelId: string;
+    id: string;
+}
