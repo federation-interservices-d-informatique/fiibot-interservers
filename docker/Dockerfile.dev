@@ -4,8 +4,11 @@ COPY package*.json ./
 
 RUN npm install
 RUN npm i -g nodemon
+RUN apk update && \
+    apk add --no-cache postgresql
 
 COPY ./src ./
 COPY ./tsconfig.json ./
+COPY ./docker/entrypoint-dev.sh /
 
-CMD nodemon --watch 'src/*' --ext 'ts' --exec 'npm run migrate:dev && npm run start-build'
+ENTRYPOINT /entrypoint-dev.sh
