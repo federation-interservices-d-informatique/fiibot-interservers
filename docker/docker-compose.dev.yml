@@ -7,20 +7,21 @@ networks:
 services:
   bot:
     build:
-      context: "./"
-      dockerfile: "./Dockerfile.dev"
+      context: ".."
+      dockerfile: "./docker/Dockerfile.dev"
     volumes:
-      - ".:/usr/src/bot"
+      - "..:/usr/src/bot"
     networks:
       - fiibot-interserver
     env_file:
-      - ".env"
+      - "../.env"
+    tty: true
   db:
     image: "postgres:14.2-alpine"
     env_file:
-      - ".env"
+      - "../.env"
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - ../db:/var/lib/postgresql/data
     networks:
       - fiibot-interserver
     ports:
