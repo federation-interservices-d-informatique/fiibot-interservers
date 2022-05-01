@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { Message, TextChannel } from "discord.js";
 import { InterServerClient } from "../classes/Client";
 import { EventData } from "../typings/index";
-import { INTERSERVER_WH_NAME } from "../utils/constants.js";
+import { INTERSERVER_WH_NAME, SERVERS_HEADERS } from "../utils/constants.js";
 
 const data: EventData = {
     name: "messageCreate",
@@ -36,15 +36,24 @@ const data: EventData = {
                 });
             }
 
+            const lastMessage = (
+                await msg.channel.messages.fetch({ limit: 2 })
+            ).last();
+
             const whMessage = await webhook.send({
-                content:
-                    msg.cleanContent.length == 0
-                        ? "​" // Invisible char
-                        : msg.cleanContent,
-                username: `${msg.author.username} - ${msg.guild.name}`,
+                content: `${
+                    lastMessage?.author.id === msg.author.id &&
+                    lastMessage?.guildId === msg.guildId
+                        ? ""
+                        : `***${
+                              SERVERS_HEADERS[msg.guildId] ??
+                              `❓ ${msg.guild.name}`
+                          }***`
+                }\n${msg.content}`,
+                username: msg.author.username,
                 avatarURL: msg.author.avatarURL(),
                 embeds: msg.embeds,
-                allowedMentions: { parse: ["users"] },
+                allowedMentions: { parse: [] },
                 files: msg.attachments.map((attachement) => attachement.url)
             });
             clones.push({ channelId, id: whMessage.id });
