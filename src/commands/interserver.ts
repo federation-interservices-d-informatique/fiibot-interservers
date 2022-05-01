@@ -50,6 +50,32 @@ export default class InterserverCommand extends Command {
                                 required: true
                             }
                         ]
+                    },
+                    {
+                        type: "SUB_COMMAND",
+                        name: "leave",
+                        description: "Quitter une fréquence",
+                        options: [
+                            {
+                                type: "STRING",
+                                name: "name",
+                                description: "Nom de la fréquence",
+                                required: true
+                            }
+                        ]
+                    },
+                    {
+                        type: "SUB_COMMAND",
+                        name: "deletefreq",
+                        description: "Quitter une fréquence",
+                        options: [
+                            {
+                                type: "STRING",
+                                name: "name",
+                                description: "Nom de la fréquence",
+                                required: true
+                            }
+                        ]
                     }
                 ]
             },
@@ -105,6 +131,17 @@ export default class InterserverCommand extends Command {
             }
         } else if (interaction.options.getSubcommand() === "join") {
             const name = interaction.options.getString("name");
+
+            if (
+                !(await this.client.prisma.frequency.findUnique({
+                    where: { name }
+                }))
+            ) {
+                interaction.reply({
+                    content: "La fréquence n'existe pas!",
+                    ephemeral: true
+                });
+            }
             await this.client.prisma.frequency.update({
                 where: {
                     name
@@ -137,6 +174,62 @@ export default class InterserverCommand extends Command {
                         .join(" ")}`,
                     ephemeral: true
                 });
+            }
+        } else if (interaction.options.getSubcommand() === "leave") {
+            const name = interaction.options.getString("name");
+            const freq = await this.client.prisma.frequency.findUnique({
+                where: {
+                    name
+                }
+            });
+            if (!freq) {
+                return await interaction.reply("La fréquence n'existe pas!");
+            }
+            try {
+                await this.client.prisma.frequency.update({
+                    where: {
+                        name
+                    },
+                    data: {
+                        channels: freq.channels.filter(
+                            (c) => c !== interaction.channelId
+                        )
+                    }
+                });
+                interaction.reply({
+                    content: "Ok!",
+                    ephemeral: true
+                });
+            } catch (e) {
+                this.client.logger.error(
+                    `Can't remove channel from freq: ${e}`
+                );
+                interaction.reply(`Erreur: ${e}`);
+            }
+        } else if (interaction.options.getSubcommand() === "deletefreq") {
+            const name = interaction.options.getString("name");
+            const freq = await this.client.prisma.frequency.findUnique({
+                where: {
+                    name
+                }
+            });
+            if (!freq) {
+                return await interaction.reply("La fréquence n'existe pas!");
+            }
+            try {
+                await this.client.prisma.message.deleteMany({
+                    where: { frequencyName: name }
+                });
+                await this.client.prisma.frequency.deleteMany({
+                    where: { name }
+                });
+                interaction.reply({
+                    content: "Ok!",
+                    ephemeral: true
+                });
+            } catch (e) {
+                this.client.logger.error(`Can't delete freq: ${e}`);
+                interaction.reply(`Erreur: ${e}`);
             }
         }
     }
