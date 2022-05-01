@@ -1,7 +1,9 @@
 import { getDirname } from "./utils/getdirname.js";
-import { readdir } from "fs/promises";
+import { readdir, readFile } from "fs/promises";
 import { EventData } from "./typings/index.js";
 import { InterServerClient } from "./classes/Client.js";
+import { existsSync } from "fs";
+import { WebhookClient } from "discord.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const client = new InterServerClient(
@@ -24,5 +26,32 @@ client.on("ready", async () => {
             await import(`${getDirname(import.meta.url)}/events/${file}`)
         ).default;
         client.eventManager.registerEvent(data.name, data.type, data.callback);
+    }
+});
+
+client.on("ready", async () => {
+    if (
+        process.env.NODE_ENV === "production" &&
+        existsSync("/tmp/migrations.log")
+    ) {
+        client.logger.info("Sending migration logs", "READY");
+        const hookClient = new WebhookClient({
+            id: process.env.LOGS_WEBHOOK_ID,
+            token: process.env.LOGS_WEBHOOK_TOKEN
+        });
+
+        try {
+            await hookClient.send({
+                content: "Migrations logs:",
+                files: [
+                    {
+                        attachment: await readFile("/tmp/migrations.log"),
+                        name: "migrations.log"
+                    }
+                ]
+            });
+        } catch (e) {
+            console.error(e);
+        }
     }
 });
