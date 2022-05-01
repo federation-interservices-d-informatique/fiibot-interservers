@@ -7,4 +7,9 @@ do
     echo "PostgreSQL is starting... Waiting"
     sleep 1
 done
+
+echo "- Running prisma migrations"
+./node_modules/.bin/prisma migrate deploy > "/tmp/migrations.log" 2>&1
+echo "- Finished running migrations"
+
 node "${DIR}/dist/index.js"
