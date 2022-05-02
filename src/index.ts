@@ -19,6 +19,7 @@ const client = new InterServerClient(
     }
 );
 
+// Load all events and set presence
 client.on("ready", async () => {
     for (const file of await readdir(`${getDirname(import.meta.url)}/events`)) {
         if (!file.endsWith(".js")) continue;
@@ -27,8 +28,18 @@ client.on("ready", async () => {
         ).default;
         client.eventManager.registerEvent(data.name, data.type, data.callback);
     }
+
+    await client.user.setPresence({
+        activities: [
+            {
+                name: "copier des messages",
+                type: "PLAYING"
+            }
+        ]
+    });
 });
 
+// Send migrations logs in production
 client.on("ready", async () => {
     if (
         process.env.NODE_ENV === "production" &&
