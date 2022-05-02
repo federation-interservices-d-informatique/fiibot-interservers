@@ -1,7 +1,7 @@
 import { Message, TextChannel } from "discord.js";
 import { InterServerClient } from "../classes/Client";
 import { EventData, MessageCloneData } from "../typings";
-import { INTERSERVER_WH_NAME } from "../utils/constants.js";
+import { INTERSERVER_WH_NAME, SERVERS_HEADERS } from "../utils/constants.js";
 
 const data: EventData = {
     name: "messageUpdate",
@@ -27,11 +27,34 @@ const data: EventData = {
             );
             if (webHook) {
                 try {
+                    const hookMessage = await webHook.fetchMessage(clone.id);
+                    console.log(
+                        SERVERS_HEADERS[newmessage.guildId],
+                        hookMessage?.content.startsWith(
+                            `***${
+                                SERVERS_HEADERS[newmessage.guildId] ??
+                                `❓ ${newmessage.guild.name}`
+                            }***`
+                        )
+                    );
                     webHook.editMessage(clone.id, {
                         content:
-                            newmessage.cleanContent.length == 0
-                                ? "​" // Invisible char
-                                : newmessage.cleanContent,
+                            // Check if server prefix is present
+                            !hookMessage?.content.startsWith(
+                                `***${
+                                    SERVERS_HEADERS[newmessage.guildId] ??
+                                    `❓ ${newmessage.guild.name}`
+                                }***`
+                            )
+                                ? // Don't re-add prefix
+                                  newmessage.cleanContent.length == 0
+                                    ? "​" // Invisible char
+                                    : newmessage.cleanContent
+                                : // Keep prefix in new content
+                                  `***${
+                                      SERVERS_HEADERS[newmessage.guildId] ??
+                                      `❓ ${newmessage.guild.name}`
+                                  }***\n${newmessage.content}`,
                         embeds: newmessage.embeds,
                         allowedMentions: { parse: ["users"] },
                         files: newmessage.attachments.map(
