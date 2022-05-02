@@ -17,7 +17,8 @@ RUN apk update && \
 RUN adduser -D -H bot bot
 
 COPY --from=build --chown=bot:bot /app/bot/package.json ./package.json
-RUN npm install --production
+COPY --from=build --chown=bot:bot /app/bot/package-lock.json ./package-lock.json
+RUN npm ci --production
 
 COPY --from=build --chown=bot:bot /app/bot/dist ./dist
 COPY --from=build --chown=bot:bot /app/bot/prisma ./prisma
