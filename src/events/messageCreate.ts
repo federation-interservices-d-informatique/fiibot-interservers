@@ -1,14 +1,18 @@
+import { clientEvent } from "@federation-interservices-d-informatique/fiibot-common";
 import { Prisma } from "@prisma/client";
 import { Message, TextChannel } from "discord.js";
-import { InterServerClient } from "../classes/Client";
-import { EventData } from "../typings/index";
-import { INTERSERVER_WH_NAME, SERVERS_HEADERS } from "../utils/constants.js";
+import { InterServerClient } from "../classes/InterServerClient";
+import {
+    INTERSERVER_WH_NAME,
+    SERVERS_HEADERS,
+    ServersHeadersKey
+} from "../utils/constants.js";
 
-const data: EventData = {
+export default clientEvent({
     name: "messageCreate",
     type: "messageCreate",
     callback: async (msg: Message) => {
-        if (msg.partial) await msg.fetch();
+        if (!msg.guild || !msg.guildId) return;
         if (msg.author.bot) return;
         const client = msg.client as InterServerClient;
 
@@ -25,13 +29,15 @@ const data: EventData = {
 
         for (const channelId of freq.channels) {
             if (msg.channelId === channelId) continue;
+
             const channel = client.channels.cache.get(channelId) as TextChannel;
             let webhook = (await channel.fetchWebhooks()).find(
                 (wh) => wh.name === INTERSERVER_WH_NAME
             );
 
             if (!webhook) {
-                webhook = await channel.createWebhook(INTERSERVER_WH_NAME, {
+                webhook = await channel.createWebhook({
+                    name: INTERSERVER_WH_NAME,
                     reason: "Interserveur"
                 });
             }
@@ -46,12 +52,13 @@ const data: EventData = {
                     lastMessage?.guildId === msg.guildId
                         ? ""
                         : `***${
-                              SERVERS_HEADERS[msg.guildId] ??
-                              `❓ ${msg.guild.name}`
+                              SERVERS_HEADERS[
+                                  msg.guildId as ServersHeadersKey
+                              ] ?? `❓ ${msg.guild.name}`
                           }***`
                 }\n${msg.content}`,
                 username: msg.author.username,
-                avatarURL: msg.author.avatarURL(),
+                avatarURL: msg.author.displayAvatarURL(),
                 embeds: msg.embeds,
                 allowedMentions: { parse: [] },
                 files: msg.attachments.map((attachement) => attachement.url)
@@ -70,6 +77,4 @@ const data: EventData = {
             }
         });
     }
-};
-
-export default data;
+});

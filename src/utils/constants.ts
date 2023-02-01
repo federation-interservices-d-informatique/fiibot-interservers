@@ -13,3 +13,5 @@ export enum SERVERS_HEADERS {
     "706283053160464395" = "<:hub:970386593405894687> HUB",
     "793993155343024160" = "<:hub:970386593405894687> TEST"
 }
+
+export type ServersHeadersKey = keyof typeof SERVERS_HEADERS;

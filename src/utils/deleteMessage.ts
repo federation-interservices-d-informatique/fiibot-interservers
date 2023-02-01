@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "discord.js";
-import { InterServerClient } from "../classes/Client";
+import { InterServerClient } from "../classes/InterServerClient";
 import { MessageCloneData } from "../typings";
 
 export const deleteMessage = async (msg: Message) => {

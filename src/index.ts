@@ -1,39 +1,39 @@
-import { getDirname } from "./utils/getdirname.js";
-import { readdir, readFile } from "fs/promises";
-import { EventData } from "./typings/index.js";
-import { InterServerClient } from "./classes/Client.js";
+import { readFile } from "fs/promises";
+import { InterServerClient } from "./classes/InterServerClient.js";
 import { existsSync } from "fs";
-import { WebhookClient } from "discord.js";
+import { ActivityType, GatewayIntentBits, WebhookClient } from "discord.js";
+import { getDirname } from "@federation-interservices-d-informatique/fiibot-common";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const rootDir = getDirname(import.meta.url);
+
 const client = new InterServerClient(
     {
-        intents: ["GUILDS", "GUILD_MESSAGES"]
+        intents: [
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.MessageContent
+        ]
     },
     {
-        commandManagerSettings: {
-            commandsPath: [`${getDirname(import.meta.url)}/commands`]
+        managersSettings: {
+            interactionsManagerSettings: {
+                interactionsPaths: [`${rootDir}/commands`]
+            },
+            eventsManagerSettings: {
+                eventsPaths: [`${rootDir}/events`]
+            }
         },
-        owners: process.env.OWNERS.split(",").map((o) => parseInt(o)),
-        token: process.env.BOT_TOKEN
+        token: process.env.BOT_TOKEN ?? ""
     }
 );
 
 // Load all events and set presence
 client.on("ready", async () => {
-    for (const file of await readdir(`${getDirname(import.meta.url)}/events`)) {
-        if (!file.endsWith(".js")) continue;
-        const data: EventData = (
-            await import(`${getDirname(import.meta.url)}/events/${file}`)
-        ).default;
-        client.eventManager.registerEvent(data.name, data.type, data.callback);
-    }
-
-    await client.user.setPresence({
+    await client.user?.setPresence({
         activities: [
             {
                 name: "copier des messages",
-                type: "PLAYING"
+                type: ActivityType.Playing
             }
         ]
     });
@@ -47,8 +47,8 @@ client.on("ready", async () => {
     ) {
         client.logger.info("Sending migration logs", "READY");
         const hookClient = new WebhookClient({
-            id: process.env.LOGS_WEBHOOK_ID,
-            token: process.env.LOGS_WEBHOOK_TOKEN
+            id: process.env.LOGS_WEBHOOK_ID ?? "INVALID",
+            token: process.env.LOGS_WEBHOOK_TOKEN ?? "INVALID"
         });
 
         try {

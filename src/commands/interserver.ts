@@ -1,94 +1,94 @@
-import { Command } from "@federation-interservices-d-informatique/fiibot-common";
-import { CommandInteraction } from "discord.js";
-import { InterServerClient } from "../classes/Client";
+import { BotInteraction } from "@federation-interservices-d-informatique/fiibot-common";
+import {
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction
+} from "discord.js";
+import { InterServerClient } from "../classes/InterServerClient";
 
-export default class InterserverCommand extends Command {
+export default class InterserverCommand extends BotInteraction {
     declare client: InterServerClient;
     constructor(client: InterServerClient) {
-        super(
-            client,
-            {
-                name: "interserver",
-                description: "Gestion des interserveurs",
-                options: [
-                    {
-                        type: "SUB_COMMAND",
-                        name: "createfreq",
-                        description: "Créer une fréquence",
-                        options: [
-                            {
-                                type: "STRING",
-                                name: "name",
-                                description: "Nom de la fréquence",
-                                required: true
-                            }
-                        ]
-                    },
-                    {
-                        type: "SUB_COMMAND",
-                        name: "join",
-                        description: "Rejoindre une féquence",
-                        options: [
-                            {
-                                type: "STRING",
-                                name: "name",
-                                description: "Nom de la fréquence",
-                                required: true
-                            }
-                        ]
-                    },
-                    {
-                        type: "SUB_COMMAND",
-                        name: "info",
-                        description:
-                            "Obtenir les informations sur une fréquence",
-                        options: [
-                            {
-                                type: "STRING",
-                                name: "name",
-                                description: "Nom de la fréquence",
-                                required: true
-                            }
-                        ]
-                    },
-                    {
-                        type: "SUB_COMMAND",
-                        name: "leave",
-                        description: "Quitter une fréquence",
-                        options: [
-                            {
-                                type: "STRING",
-                                name: "name",
-                                description: "Nom de la fréquence",
-                                required: true
-                            }
-                        ]
-                    },
-                    {
-                        type: "SUB_COMMAND",
-                        name: "deletefreq",
-                        description: "Quitter une fréquence",
-                        options: [
-                            {
-                                type: "STRING",
-                                name: "name",
-                                description: "Nom de la fréquence",
-                                required: true
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                userPermissions: ["ADMINISTRATOR"],
-                guildOnly: true
-            }
-        );
+        super(client, {
+            name: "interserver",
+            description: "Gestion des interserveurs",
+            options: [
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "createfreq",
+                    description: "Créer une fréquence",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.String,
+                            name: "name",
+                            description: "Nom de la fréquence",
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "join",
+                    description: "Rejoindre une féquence",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.String,
+                            name: "name",
+                            description: "Nom de la fréquence",
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "info",
+                    description: "Obtenir les informations sur une fréquence",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.String,
+                            name: "name",
+                            description: "Nom de la fréquence",
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "leave",
+                    description: "Quitter une fréquence",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.String,
+                            name: "name",
+                            description: "Nom de la fréquence",
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "deletefreq",
+                    description: "Supprimer une fréquence",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.String,
+                            name: "name",
+                            description: "Nom de la fréquence",
+                            required: true
+                        }
+                    ]
+                }
+            ],
+            dmPermission: false,
+            defaultMemberPermissions: ["Administrator"]
+        });
     }
 
-    async run(interaction: CommandInteraction): Promise<void> {
+    async runChatInputCommand(
+        interaction: ChatInputCommandInteraction
+    ): Promise<void> {
         if (interaction.options.getSubcommand() === "createfreq") {
             const name = interaction.options.getString("name");
+            if (!name) return;
 
             const frequency = await this.client.prisma.frequency.findUnique({
                 where: {
@@ -131,6 +131,7 @@ export default class InterserverCommand extends Command {
             }
         } else if (interaction.options.getSubcommand() === "join") {
             const name = interaction.options.getString("name");
+            if (!name) return;
 
             if (
                 !(await this.client.prisma.frequency.findUnique({
@@ -156,6 +157,8 @@ export default class InterserverCommand extends Command {
             interaction.reply({ content: "OK!", ephemeral: true });
         } else if (interaction.options.getSubcommand() === "info") {
             const name = interaction.options.getString("name");
+            if (!name) return;
+
             const frequency = await this.client.prisma.frequency.findUnique({
                 where: { name }
             });
@@ -177,13 +180,16 @@ export default class InterserverCommand extends Command {
             }
         } else if (interaction.options.getSubcommand() === "leave") {
             const name = interaction.options.getString("name");
+            if (!name) return;
+
             const freq = await this.client.prisma.frequency.findUnique({
                 where: {
                     name
                 }
             });
             if (!freq) {
-                return await interaction.reply("La fréquence n'existe pas!");
+                await interaction.reply("La fréquence n'existe pas!");
+                return;
             }
             try {
                 await this.client.prisma.frequency.update({
@@ -208,13 +214,16 @@ export default class InterserverCommand extends Command {
             }
         } else if (interaction.options.getSubcommand() === "deletefreq") {
             const name = interaction.options.getString("name");
+            if (!name) return;
+
             const freq = await this.client.prisma.frequency.findUnique({
                 where: {
                     name
                 }
             });
             if (!freq) {
-                return await interaction.reply("La fréquence n'existe pas!");
+                await interaction.reply("La fréquence n'existe pas!");
+                return;
             }
             try {
                 await this.client.prisma.message.deleteMany({
