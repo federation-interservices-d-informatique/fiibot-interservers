@@ -1,17 +1,25 @@
-import { Message, TextChannel } from "discord.js";
-import { InterServerClient } from "../classes/Client";
-import { EventData, MessageCloneData } from "../typings";
-import { INTERSERVER_WH_NAME, SERVERS_HEADERS } from "../utils/constants.js";
+import { clientEvent } from "@federation-interservices-d-informatique/fiibot-common";
+import { Message, PartialMessage, TextChannel } from "discord.js";
+import { InterServerClient } from "../classes/InterServerClient";
+import { MessageCloneData } from "../typings";
+import {
+    INTERSERVER_WH_NAME,
+    ServersHeadersKey,
+    SERVERS_HEADERS
+} from "../utils/constants.js";
 
-const data: EventData = {
+export default clientEvent({
     name: "messageUpdate",
     type: "messageUpdate",
     callback: async (
-        oldmessage: Message,
-        newmessage: Message
+        oldmessage: Message | PartialMessage,
+        newmessage: Message | PartialMessage
     ): Promise<void> => {
         if (newmessage.partial) await newmessage.fetch();
-        if (newmessage.author.bot) return;
+        if (newmessage.partial) return;
+        if (newmessage.author?.bot) return;
+        if (!newmessage.guild || !newmessage.guildId) return;
+
         const client = newmessage.client as InterServerClient;
         const dbMessage = await client.prisma.message.findUnique({
             where: { id: newmessage.id }
@@ -28,22 +36,14 @@ const data: EventData = {
             if (webHook) {
                 try {
                     const hookMessage = await webHook.fetchMessage(clone.id);
-                    console.log(
-                        SERVERS_HEADERS[newmessage.guildId],
-                        hookMessage?.content.startsWith(
-                            `***${
-                                SERVERS_HEADERS[newmessage.guildId] ??
-                                `❓ ${newmessage.guild.name}`
-                            }***`
-                        )
-                    );
                     webHook.editMessage(clone.id, {
                         content:
                             // Check if server prefix is present
                             !hookMessage?.content.startsWith(
                                 `***${
-                                    SERVERS_HEADERS[newmessage.guildId] ??
-                                    `❓ ${newmessage.guild.name}`
+                                    SERVERS_HEADERS[
+                                        newmessage.guildId as ServersHeadersKey
+                                    ] ?? `❓ ${newmessage.guild.name}`
                                 }***`
                             )
                                 ? // Don't re-add prefix
@@ -52,8 +52,9 @@ const data: EventData = {
                                     : newmessage.cleanContent
                                 : // Keep prefix in new content
                                   `***${
-                                      SERVERS_HEADERS[newmessage.guildId] ??
-                                      `❓ ${newmessage.guild.name}`
+                                      SERVERS_HEADERS[
+                                          newmessage.guildId as ServersHeadersKey
+                                      ] ?? `❓ ${newmessage.guild.name}`
                                   }***\n${newmessage.content}`,
                         embeds: newmessage.embeds,
                         allowedMentions: { parse: ["users"] },
@@ -70,6 +71,4 @@ const data: EventData = {
             }
         }
     }
-};
-
-export default data;
+});
