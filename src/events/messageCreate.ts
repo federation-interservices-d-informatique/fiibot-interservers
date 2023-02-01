@@ -1,6 +1,6 @@
 import { clientEvent } from "@federation-interservices-d-informatique/fiibot-common";
 import { Prisma } from "@prisma/client";
-import { Message, TextChannel } from "discord.js";
+import { Colors, Embed, Message, MessageType, TextChannel } from "discord.js";
 import { InterServerClient } from "../classes/InterServerClient";
 import {
     INTERSERVER_WH_NAME,
@@ -45,6 +45,18 @@ export default clientEvent({
             const lastMessage = (
                 await msg.channel.messages.fetch({ limit: 2 })
             ).last();
+
+            // Handle message replies
+            if (msg.type === MessageType.Reply) {
+                const reference = await msg.fetchReference();
+                if (!reference) return;
+
+                msg.embeds.push({
+                    title: `En réponse à ${reference.author.username}`,
+                    description: `>>> ${reference.cleanContent}`,
+                    color: Colors.Blue
+                } as Embed);
+            }
 
             const whMessage = await webhook.send({
                 content: `${
