@@ -34,6 +34,12 @@ export default clientEvent({
                 (hook) => hook.name === INTERSERVER_WH_NAME
             );
             if (webHook) {
+                const replyEmbed = oldmessage.embeds.find((e) =>
+                    e.title?.startsWith("En réponse à")
+                );
+                if (replyEmbed) {
+                    newmessage.embeds.push(replyEmbed);
+                }
                 try {
                     const hookMessage = await webHook.fetchMessage(clone.id);
                     webHook.editMessage(clone.id, {
