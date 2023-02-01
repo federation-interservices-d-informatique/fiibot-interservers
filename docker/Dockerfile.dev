@@ -3,7 +3,7 @@ WORKDIR /usr/src/bot
 COPY package*.json ./
 
 RUN npm install
-RUN npm i -g nodemon
+RUN npm i -g tsc-watch
 RUN apk update && \
     apk add --no-cache postgresql
 

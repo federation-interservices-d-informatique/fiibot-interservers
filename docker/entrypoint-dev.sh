@@ -6,4 +6,4 @@ do
     echo "PostgreSQL is starting... Waiting"
     sleep 1
 done
-nodemon --watch 'src/*' --ext 'ts' --exec 'npm run migrate:dev && npm run start-build'
+tsc-watch --onSuccess "npm run start-build"
