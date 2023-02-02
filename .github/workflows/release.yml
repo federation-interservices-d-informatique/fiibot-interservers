@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  NODE_VERSION: 18
 
 jobs:
   lint:
@@ -18,7 +19,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: npm install
       - name: Lint
@@ -31,7 +32,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: npm install
       - name: Build
@@ -46,13 +47,12 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: npm install
       - name: Gen changelog
-        run: bash .github/bin/genlog.sh
+        run: bash .github/bin/changelog.sh > ${GITHUB_WORKSPACE}/changelog.txt
       - name: Create release
-        id: create_release
         uses: softprops/action-gh-release@v1
         with:
           body_path: '${{ github.workspace }}/changelog.txt'
