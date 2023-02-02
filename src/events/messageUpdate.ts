@@ -1,12 +1,12 @@
-import { clientEvent } from "@federation-interservices-d-informatique/fiibot-common";
+import {
+    clientEvent,
+    SERVERS_HEADERS,
+    ServersHeadersKey
+} from "@federation-interservices-d-informatique/fiibot-common";
 import { Message, MessageType, PartialMessage, TextChannel } from "discord.js";
 import { InterServerClient } from "../classes/InterServerClient";
 import { MessageCloneData } from "../typings";
-import {
-    INTERSERVER_WH_NAME,
-    ServersHeadersKey,
-    SERVERS_HEADERS
-} from "../utils/constants.js";
+import { INTERSERVER_WH_NAME } from "../utils/constants.js";
 import { makeReplyEmbed } from "../utils/embeds.js";
 
 export default clientEvent({
