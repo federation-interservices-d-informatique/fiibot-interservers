@@ -6,4 +6,5 @@ do
     echo "PostgreSQL is starting... Waiting"
     sleep 1
 done
+npm run migrate:dev
 tsc-watch --onSuccess "npm run start-build"
