@@ -55,7 +55,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          body_path: '/home/runner/changelog.txt'
+          body_path: '${{ github.workspace }}/changelog.txt'
           token: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-push-image:
