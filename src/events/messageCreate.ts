@@ -1,12 +1,13 @@
 import { clientEvent } from "@federation-interservices-d-informatique/fiibot-common";
 import { Prisma } from "@prisma/client";
-import { Colors, Embed, Message, MessageType, TextChannel } from "discord.js";
+import { Message, MessageType, TextChannel } from "discord.js";
 import { InterServerClient } from "../classes/InterServerClient";
 import {
     INTERSERVER_WH_NAME,
     SERVERS_HEADERS,
     ServersHeadersKey
 } from "../utils/constants.js";
+import { makeReplyEmbed } from "../utils/embeds.js";
 
 export default clientEvent({
     name: "messageCreate",
@@ -51,11 +52,7 @@ export default clientEvent({
                 const reference = await msg.fetchReference();
                 if (!reference) return;
 
-                msg.embeds.push({
-                    title: `En réponse à ${reference.author.username}`,
-                    description: `>>> ${reference.cleanContent}`,
-                    color: Colors.Blue
-                } as Embed);
+                msg.embeds.push(makeReplyEmbed(reference));
             }
 
             const whMessage = await webhook.send({

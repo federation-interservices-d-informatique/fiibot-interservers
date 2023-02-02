@@ -1,5 +1,5 @@
 import { clientEvent } from "@federation-interservices-d-informatique/fiibot-common";
-import { Message, PartialMessage, TextChannel } from "discord.js";
+import { Message, MessageType, PartialMessage, TextChannel } from "discord.js";
 import { InterServerClient } from "../classes/InterServerClient";
 import { MessageCloneData } from "../typings";
 import {
@@ -7,6 +7,7 @@ import {
     ServersHeadersKey,
     SERVERS_HEADERS
 } from "../utils/constants.js";
+import { makeReplyEmbed } from "../utils/embeds.js";
 
 export default clientEvent({
     name: "messageUpdate",
@@ -34,11 +35,12 @@ export default clientEvent({
                 (hook) => hook.name === INTERSERVER_WH_NAME
             );
             if (webHook) {
-                const replyEmbed = oldmessage.embeds.find((e) =>
-                    e.title?.startsWith("En réponse à")
-                );
-                if (replyEmbed) {
-                    newmessage.embeds.push(replyEmbed);
+                // Handle message replies
+                if (newmessage.type === MessageType.Reply) {
+                    const reference = await newmessage.fetchReference();
+                    if (!reference) return;
+
+                    newmessage.embeds.push(makeReplyEmbed(reference));
                 }
                 try {
                     const hookMessage = await webHook.fetchMessage(clone.id);
