@@ -10,7 +10,9 @@ services:
       context: ".."
       dockerfile: "./docker/Dockerfile.dev"
     volumes:
-      - "..:/usr/src/bot"
+      - "../src:/usr/src/bot/src"
+      - "../prisma:/usr/src/bot/prisma"
+      - "../node_modules:/usr/src/bot/node_modules"
     networks:
       - fiibot-interserver
     env_file:
