@@ -7,8 +7,8 @@
     "scripts": {
         "build": "tsc",
         "test": "node --experimental-vm-modules node_modules/.bin/jest --passWithNoTests",
-        "lint": "eslint . -c .eslintrc.cjs",
-        "lint-fix": "eslint . -c .eslintrc.cjs --fix",
+        "lint": "eslint . -c .eslintrc.yml",
+        "lint-fix": "eslint . -c .eslintrc.yml --fix",
         "format": "prettier 'src/**/*.ts' --write",
         "start-build": "tsc && node dist/index.js",
         "migrate:dev": "prisma migrate dev"
@@ -29,7 +29,7 @@
     "homepage": "https://github.com/federation-interservices-d-informatique/fiibot-template#readme",
     "devDependencies": {
         "@types/jest": "^29.4.0",
-        "@types/node": "^18.11.18",
+        "@types/node": "^18.11.19",
         "@typescript-eslint/eslint-plugin": "^5.50.0",
         "@typescript-eslint/parser": "^5.50.0",
         "eslint": "^8.33.0",
@@ -40,10 +40,9 @@
         "typescript": "^4.9.5"
     },
     "dependencies": {
-        "@federation-interservices-d-informatique/fiibot-common": "^4.0.6",
+        "@federation-interservices-d-informatique/fiibot-common": "^4.0.9",
         "@prisma/client": "^4.9.0",
         "discord.js": "^14.7.1",
         "prisma": "^4.9.0"
-
     }
 }
