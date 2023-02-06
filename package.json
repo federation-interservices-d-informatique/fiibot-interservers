@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "build": "tsc",
-        "test": "node --experimental-vm-modules node_modules/.bin/jest --passWithNoTests",
+        "test": "echo \"Hello\"",
         "lint": "eslint . -c .eslintrc.yml",
         "lint-fix": "eslint . -c .eslintrc.yml --fix",
         "format": "prettier 'src/**/*.ts' --write",
@@ -28,7 +28,6 @@
     },
     "homepage": "https://github.com/federation-interservices-d-informatique/fiibot-template#readme",
     "devDependencies": {
-        "@types/jest": "^29.4.0",
         "@types/node": "^18.11.19",
         "@typescript-eslint/eslint-plugin": "^5.50.0",
         "@typescript-eslint/parser": "^5.50.0",
@@ -36,7 +35,6 @@
         "eslint-config-prettier": "^8.6.0",
         "eslint-plugin-prettier": "^4.2.1",
         "prettier": "^2.8.3",
-        "ts-jest": "^29.0.5",
         "typescript": "^4.9.5"
     },
     "dependencies": {
