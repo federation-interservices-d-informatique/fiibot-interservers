@@ -96,10 +96,15 @@ export default class InterserverCommand extends BotInteraction {
                             required: true
                         }
                     ],
+                },
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "list",
+                    description: "Lister les fréquences qui existent",
                 }
             ],
             dmPermission: false,
-            defaultMemberPermissions: ["Administrator"]
+            defaultMemberPermissions: ["Administrator"],
         });
     }
 
@@ -304,6 +309,16 @@ export default class InterserverCommand extends BotInteraction {
                     flags: MessageFlags.Ephemeral
                 })
             }
+        } else if (interaction.options.getSubcommand() === "list") {
+            const frequencies = await this.client.prisma.frequency.findMany()
+
+            interaction.reply({
+                flags: MessageFlags.Ephemeral,
+                content: `Liste des fréquences existantes:
+                
+                ${frequencies.map(x =>
+                    `* ${x.name}: ${x.channels.map(y => `<#${y}>`).join(' ')}`).join('\n')}`
+            })
         }
     }
 }
