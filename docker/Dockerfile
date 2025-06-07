@@ -1,4 +1,4 @@
-FROM node:18-alpine3.17 as build
+FROM node:24-alpine3.22 as build
 WORKDIR /app/bot
 
 COPY ./src ./src
@@ -11,7 +11,7 @@ RUN npm install
 RUN npx tsc
 RUN npx prisma generate
 
-FROM node:18-alpine3.17 as prod
+FROM node:24-alpine3.22 as prod
 WORKDIR /usr/src/bot
 RUN apk update && \
     apk add --no-cache postgresql curl
