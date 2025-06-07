@@ -1,7 +1,8 @@
 import { BotInteraction } from "@federation-interservices-d-informatique/fiibot-common";
 import {
     ApplicationCommandOptionType,
-    ChatInputCommandInteraction
+    ChatInputCommandInteraction,
+    MessageFlags
 } from "discord.js";
 import { InterServerClient } from "../classes/InterServerClient";
 
@@ -76,6 +77,25 @@ export default class InterserverCommand extends BotInteraction {
                             required: true
                         }
                     ]
+                },
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "removechan",
+                    description: "Retire un canal d'une fréquence",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.String,
+                            name: "name",
+                            description: "Nom de la fréquence",
+                            required: true
+                        },
+                        {
+                            type: ApplicationCommandOptionType.String,
+                            name: "channel",
+                            description: "ID du canal a retirer",
+                            required: true
+                        }
+                    ],
                 }
             ],
             dmPermission: false,
@@ -170,11 +190,10 @@ export default class InterserverCommand extends BotInteraction {
                 });
             } else {
                 interaction.reply({
-                    content: `Nom: ${name}\nCréée par: <@${
-                        frequency.ownerid
-                    }> (${frequency.ownerid})\nCanaux: ${frequency.channels
-                        .map((c) => `<#${c}>`)
-                        .join(" ")}`,
+                    content: `Nom: ${name}\nCréée par: <@${frequency.ownerid
+                        }> (${frequency.ownerid})\nCanaux: ${frequency.channels
+                            .map((c) => `<#${c}>`)
+                            .join(" ")}`,
                     ephemeral: true
                 });
             }
@@ -239,6 +258,51 @@ export default class InterserverCommand extends BotInteraction {
             } catch (e) {
                 this.client.logger.error(`Can't delete freq: ${e}`);
                 interaction.reply(`Erreur: ${e}`);
+            }
+        } else if (interaction.options.getSubcommand() === "removechan") {
+            if (this.client.isOwner(interaction.user)) {
+                const name = interaction.options.getString("name")!;
+                const channelId = interaction.options.getString("channel")!;
+                const freq = await this.client.prisma.frequency.findUnique({
+                    where: {
+                        name
+                    }
+                });
+
+                if (!freq) {
+                    await interaction.reply("La fréquence n'existe pas!");
+                    return;
+                }
+
+                try {
+                    await this.client.prisma.frequency.update({
+                        where: {
+                            name
+                        },
+                        data: {
+                            channels: freq.channels.filter(
+                                (c) => c !== channelId
+                            )
+                        }
+                    });
+                    interaction.reply({
+                        content: "Ok!",
+                        flags: MessageFlags.Ephemeral
+                    });
+                } catch (e) {
+                    this.client.logger.error(
+                        `Can't remove channel from freq: ${e}`
+                    );
+                    interaction.reply({
+                        content: `Erreur: ${e}`,
+                        flags: MessageFlags.Ephemeral
+                    });
+                }
+            } else {
+                interaction.reply({
+                    content: `Vous ne pouvez pas faire ça!`,
+                    flags: MessageFlags.Ephemeral
+                })
             }
         }
     }
