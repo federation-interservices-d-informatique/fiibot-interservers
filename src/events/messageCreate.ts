@@ -33,7 +33,6 @@ export default clientEvent({
 
             const channel = client.channels.cache.get(channelId) as TextChannel;
             if (channel) {
-
                 let webhook = (await channel.fetchWebhooks()).find(
                     (wh) => wh.name === INTERSERVER_WH_NAME
                 );

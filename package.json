@@ -7,8 +7,8 @@
     "scripts": {
         "build": "tsc",
         "test": "echo \"Hello\"",
-        "lint": "eslint . -c .eslintrc.yml",
-        "lint-fix": "eslint . -c .eslintrc.yml --fix",
+        "lint": "eslint .",
+        "lint-fix": "eslint . --fix",
         "format": "prettier 'src/**/*.ts' --write",
         "start-build": "tsc && node dist/index.js",
         "migrate:dev": "prisma migrate dev"

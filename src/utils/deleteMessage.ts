@@ -23,7 +23,7 @@ export const deleteMessage = async (msg: Message) => {
                 if (message.deletable) await message.delete();
             } catch (e) {
                 client.logger.error(
-                    `Can't delete message ${clone.id} in ${clone.channelId}`,
+                    `Can't delete message ${clone.id} in ${clone.channelId} (${e})`,
                     "MESSAGEDELETE"
                 );
             }

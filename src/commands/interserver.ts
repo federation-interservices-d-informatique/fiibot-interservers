@@ -95,16 +95,16 @@ export default class InterserverCommand extends BotInteraction {
                             description: "ID du canal a retirer",
                             required: true
                         }
-                    ],
+                    ]
                 },
                 {
                     type: ApplicationCommandOptionType.Subcommand,
                     name: "list",
-                    description: "Lister les fréquences qui existent",
+                    description: "Lister les fréquences qui existent"
                 }
             ],
             dmPermission: false,
-            defaultMemberPermissions: ["Administrator"],
+            defaultMemberPermissions: ["Administrator"]
         });
     }
 
@@ -195,10 +195,11 @@ export default class InterserverCommand extends BotInteraction {
                 });
             } else {
                 interaction.reply({
-                    content: `Nom: ${name}\nCréée par: <@${frequency.ownerid
-                        }> (${frequency.ownerid})\nCanaux: ${frequency.channels
-                            .map((c) => `<#${c}>`)
-                            .join(" ")}`,
+                    content: `Nom: ${name}\nCréée par: <@${
+                        frequency.ownerid
+                    }> (${frequency.ownerid})\nCanaux: ${frequency.channels
+                        .map((c) => `<#${c}>`)
+                        .join(" ")}`,
                     ephemeral: true
                 });
             }
@@ -305,20 +306,24 @@ export default class InterserverCommand extends BotInteraction {
                 }
             } else {
                 interaction.reply({
-                    content: `Vous ne pouvez pas faire ça!`,
+                    content: "Vous ne pouvez pas faire ça!",
                     flags: MessageFlags.Ephemeral
-                })
+                });
             }
         } else if (interaction.options.getSubcommand() === "list") {
-            const frequencies = await this.client.prisma.frequency.findMany()
+            const frequencies = await this.client.prisma.frequency.findMany();
 
             interaction.reply({
                 flags: MessageFlags.Ephemeral,
                 content: `Liste des fréquences existantes:
                 
-                ${frequencies.map(x =>
-                    `* ${x.name}: ${x.channels.map(y => `<#${y}>`).join(' ')}`).join('\n')}`
-            })
+                ${frequencies
+                    .map(
+                        (x) =>
+                            `* ${x.name}: ${x.channels.map((y) => `<#${y}>`).join(" ")}`
+                    )
+                    .join("\n")}`
+            });
         }
     }
 }

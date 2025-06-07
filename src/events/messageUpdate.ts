@@ -72,7 +72,7 @@ export default clientEvent({
                     });
                 } catch (e) {
                     client.logger.error(
-                        `Can't edit message webhook message ${clone.id} in ${clone.channelId} (original message ${newmessage.id})`,
+                        `Can't edit message webhook message ${clone.id} in ${clone.channelId} (original message ${newmessage.id}): ${e}`,
                         "messageEditHandler"
                     );
                 }
