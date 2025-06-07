@@ -1,12 +1,12 @@
 import { clientEvent } from "@federation-interservices-d-informatique/fiibot-common";
-import { Message, Snowflake, Collection, PartialMessage } from "discord.js";
+import { Message, Snowflake, ReadonlyCollection, PartialMessage, GuildTextBasedChannel } from "discord.js";
 import { deleteMessage } from "../utils/deleteMessage.js";
 
 export default clientEvent({
     name: "messageDeleteBulk",
     type: "messageDeleteBulk",
     callback: async (
-        messages: Collection<Snowflake, Message | PartialMessage>
+        messages: ReadonlyCollection<Snowflake, Message | PartialMessage>, channel: GuildTextBasedChannel
     ): Promise<void> => {
         for (const msg of messages.values()) {
             if (msg.partial) await msg.fetch();
