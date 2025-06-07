@@ -6,6 +6,7 @@ services:
   bot:
     build:
       context: ".."
+      network: host
       dockerfile: "./docker/Dockerfile.dev"
     volumes:
       - "../src:/usr/src/bot/src"
@@ -17,7 +18,7 @@ services:
       - "../.env"
     tty: true
   db:
-    image: "postgres:15.1-alpine"
+    image: "postgres:17.5-alpine"
     env_file:
       - "../.env"
     volumes:
