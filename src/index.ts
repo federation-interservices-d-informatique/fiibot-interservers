@@ -28,7 +28,7 @@ const client = new InterServerClient(
 );
 
 // Load all events and set presence
-client.on("ready", async () => {
+client.on("clientReady", async () => {
     client.user?.setPresence({
         activities: [
             {
@@ -40,7 +40,7 @@ client.on("ready", async () => {
 });
 
 // Send migrations logs in production
-client.on("ready", async () => {
+client.on("clientReady", async () => {
     if (
         process.env.NODE_ENV === "production" &&
         existsSync("/tmp/migrations.log")
