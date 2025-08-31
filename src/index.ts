@@ -29,7 +29,7 @@ const client = new InterServerClient(
 
 // Load all events and set presence
 client.on("ready", async () => {
-    await client.user?.setPresence({
+    client.user?.setPresence({
         activities: [
             {
                 name: "copier des messages",

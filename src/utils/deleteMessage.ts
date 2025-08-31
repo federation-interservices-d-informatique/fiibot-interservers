@@ -3,7 +3,6 @@ import { InterServerClient } from "../classes/InterServerClient";
 import { MessageCloneData } from "../typings";
 
 export const deleteMessage = async (msg: Message) => {
-    if (msg.partial) return;
     const client = msg.client as InterServerClient;
     const originalDbMsg = await client.prisma.message.findUnique({
         where: {
@@ -13,19 +12,20 @@ export const deleteMessage = async (msg: Message) => {
     if (originalDbMsg) {
         await client.prisma.message.delete({ where: { id: msg.id } });
 
-        for (const clone of originalDbMsg.clones as unknown as Array<MessageCloneData>) {
+        for (const clone of originalDbMsg.clones as unknown as MessageCloneData[]) {
             try {
                 const channel = client.channels.cache.get(
                     clone.channelId
-                ) as TextChannel;
-                const message = await channel?.messages.fetch(clone.id);
+                ) as TextChannel | undefined;
+                const message = await channel?.messages.fetch(clone.id).catch(() => undefined);
                 if (!message) return;
                 if (message.deletable) await message.delete();
             } catch (e) {
-                client.logger.error(
-                    `Can't delete message ${clone.id} in ${clone.channelId} (${e})`,
-                    "MESSAGEDELETE"
-                );
+                if (e instanceof Error)
+                    client.logger.error(
+                        `Can't delete message ${clone.id} in ${clone.channelId} (${e})`,
+                        "MESSAGEDELETE"
+                    );
             }
         }
     } else {
@@ -51,36 +51,38 @@ export const deleteMessage = async (msg: Message) => {
             }
         });
 
-        for (const clone of cloneDbMsg.clones as unknown as Array<MessageCloneData>) {
+        for (const clone of cloneDbMsg.clones as unknown as MessageCloneData[]) {
             if (clone.id === msg.id) continue;
             try {
                 const channel = client.channels.cache.get(
                     clone.channelId
-                ) as TextChannel;
+                ) as TextChannel | undefined;
                 const message = await channel?.messages.fetch(clone.id);
                 if (!message) continue;
                 if (message.deletable) await message.delete();
             } catch (e) {
-                client.logger.error(
-                    `Can't delete message ${clone.id} in ${clone.channelId}: ${e}`,
-                    "DELETECLONES"
-                );
+                if (e instanceof Error)
+                    client.logger.error(
+                        `Can't delete message ${clone.id} in ${clone.channelId}: ${e}`,
+                        "DELETECLONES"
+                    );
             }
         }
         try {
             const originalChan = client.channels.cache.get(
                 cloneDbMsg.channelId
-            ) as TextChannel;
+            ) as TextChannel | undefined;
             const originalMsg = await originalChan?.messages.fetch(
                 cloneDbMsg.id
             );
-            if (originalMsg && originalMsg.deletable)
+            if (originalMsg?.deletable)
                 await originalMsg.delete();
         } catch (e) {
-            client.logger.error(
-                `Can't delete original message ${cloneDbMsg.id} in ${cloneDbMsg.channelId} ${e}`,
-                "DELETECLONES"
-            );
+            if (e instanceof Error)
+                client.logger.error(
+                    `Can't delete original message ${cloneDbMsg.id} in ${cloneDbMsg.channelId} ${e}`,
+                    "DELETECLONES"
+                );
         }
     }
 };

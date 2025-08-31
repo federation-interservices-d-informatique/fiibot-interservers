@@ -122,7 +122,7 @@ export default class InterserverCommand extends BotInteraction {
             });
 
             if (frequency) {
-                interaction.reply({
+                await interaction.reply({
                     content: `La fréquence ${name} existe déjà et contient les canaux ${frequency.channels
                         .map((c) => `<#${c}>`)
                         .join(" ")} `,
@@ -139,20 +139,22 @@ export default class InterserverCommand extends BotInteraction {
                         channels: [interaction.channelId]
                     }
                 });
-                interaction.reply({
+                await interaction.reply({
                     content: `OK! Fréquence ${name} créée!`,
                     ephemeral: true
                 });
             } catch (e) {
-                this.client.logger.error(
-                    `Can't create frequency ${name}: ${e}`,
-                    "INTERSERVER"
-                );
+                if (e instanceof Error) {
+                    this.client.logger.error(
+                        `Can't create frequency ${name}: ${e}`,
+                        "INTERSERVER"
+                    );
 
-                interaction.reply({
-                    content: `Erreur: ${e}`,
-                    ephemeral: true
-                });
+                    await interaction.reply({
+                        content: `Erreur: ${e}`,
+                        ephemeral: true
+                    });
+                }
             }
         } else if (interaction.options.getSubcommand() === "join") {
             const name = interaction.options.getString("name");
@@ -163,7 +165,7 @@ export default class InterserverCommand extends BotInteraction {
                     where: { name }
                 }))
             ) {
-                interaction.reply({
+                await interaction.reply({
                     content: "La fréquence n'existe pas!",
                     ephemeral: true
                 });
@@ -179,7 +181,7 @@ export default class InterserverCommand extends BotInteraction {
                 }
             });
 
-            interaction.reply({ content: "OK!", ephemeral: true });
+            await interaction.reply({ content: "OK!", ephemeral: true });
         } else if (interaction.options.getSubcommand() === "info") {
             const name = interaction.options.getString("name");
             if (!name) return;
@@ -189,12 +191,12 @@ export default class InterserverCommand extends BotInteraction {
             });
 
             if (!frequency) {
-                interaction.reply({
+                await interaction.reply({
                     content: "La fréquence n'existe pas!",
                     ephemeral: true
                 });
             } else {
-                interaction.reply({
+                await interaction.reply({
                     content: `Nom: ${name}\nCréée par: <@${
                         frequency.ownerid
                     }> (${frequency.ownerid})\nCanaux: ${frequency.channels
@@ -227,15 +229,17 @@ export default class InterserverCommand extends BotInteraction {
                         )
                     }
                 });
-                interaction.reply({
+                await interaction.reply({
                     content: "Ok!",
                     ephemeral: true
                 });
             } catch (e) {
-                this.client.logger.error(
-                    `Can't remove channel from freq: ${e}`
-                );
-                interaction.reply(`Erreur: ${e}`);
+                if (e instanceof Error) {
+                    this.client.logger.error(
+                        `Can't remove channel from freq: ${e}`
+                    );
+                    await interaction.reply(`Erreur: ${e}`);
+                }
             }
         } else if (interaction.options.getSubcommand() === "deletefreq") {
             const name = interaction.options.getString("name");
@@ -257,18 +261,20 @@ export default class InterserverCommand extends BotInteraction {
                 await this.client.prisma.frequency.deleteMany({
                     where: { name }
                 });
-                interaction.reply({
+                await interaction.reply({
                     content: "Ok!",
                     ephemeral: true
                 });
             } catch (e) {
-                this.client.logger.error(`Can't delete freq: ${e}`);
-                interaction.reply(`Erreur: ${e}`);
+                if (e instanceof Error) {
+                    this.client.logger.error(`Can't delete freq: ${e}`);
+                    await interaction.reply(`Erreur: ${e}`);
+                }
             }
         } else if (interaction.options.getSubcommand() === "removechan") {
             if (this.client.isOwner(interaction.user)) {
-                const name = interaction.options.getString("name")!;
-                const channelId = interaction.options.getString("channel")!;
+                const name = interaction.options.getString("name") ?? "";
+                const channelId = interaction.options.getString("channel") ?? "";
                 const freq = await this.client.prisma.frequency.findUnique({
                     where: {
                         name
@@ -291,21 +297,23 @@ export default class InterserverCommand extends BotInteraction {
                             )
                         }
                     });
-                    interaction.reply({
+                    await interaction.reply({
                         content: "Ok!",
                         flags: MessageFlags.Ephemeral
                     });
                 } catch (e) {
-                    this.client.logger.error(
-                        `Can't remove channel from freq: ${e}`
-                    );
-                    interaction.reply({
-                        content: `Erreur: ${e}`,
-                        flags: MessageFlags.Ephemeral
-                    });
+                    if (e instanceof Error) {
+                        this.client.logger.error(
+                            `Can't remove channel from freq: ${e}`
+                        );
+                        await interaction.reply({
+                            content: `Erreur: ${e}`,
+                            flags: MessageFlags.Ephemeral
+                        });
+                    }
                 }
             } else {
-                interaction.reply({
+                await interaction.reply({
                     content: "Vous ne pouvez pas faire ça!",
                     flags: MessageFlags.Ephemeral
                 });
@@ -313,7 +321,7 @@ export default class InterserverCommand extends BotInteraction {
         } else if (interaction.options.getSubcommand() === "list") {
             const frequencies = await this.client.prisma.frequency.findMany();
 
-            interaction.reply({
+            await interaction.reply({
                 flags: MessageFlags.Ephemeral,
                 content: `Liste des fréquences existantes:
                 

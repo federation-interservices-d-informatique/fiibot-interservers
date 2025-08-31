@@ -31,18 +31,16 @@ export default clientEvent({
         for (const channelId of freq.channels) {
             if (msg.channelId === channelId) continue;
 
-            const channel = client.channels.cache.get(channelId) as TextChannel;
+            const channel = client.channels.cache.get(channelId) as TextChannel | undefined;
             if (channel) {
                 let webhook = (await channel.fetchWebhooks()).find(
                     (wh) => wh.name === INTERSERVER_WH_NAME
                 );
 
-                if (!webhook) {
-                    webhook = await channel.createWebhook({
-                        name: INTERSERVER_WH_NAME,
-                        reason: "Interserveur"
-                    });
-                }
+                webhook ??= await channel.createWebhook({
+                    name: INTERSERVER_WH_NAME,
+                    reason: "Interserveur"
+                });
 
                 const lastMessage = (
                     await msg.channel.messages.fetch({ limit: 2 })
@@ -50,7 +48,7 @@ export default clientEvent({
 
                 // Handle message replies
                 if (msg.type === MessageType.Reply) {
-                    const reference = await msg.fetchReference();
+                    const reference = (await msg.fetchReference().catch(() => undefined));
                     if (!reference) return;
 
                     msg.embeds.push(makeReplyEmbed(reference));
@@ -59,13 +57,14 @@ export default clientEvent({
                 const whMessage = await webhook.send({
                     content: `${
                         lastMessage?.author.id === msg.author.id &&
-                        lastMessage?.guildId === msg.guildId
+                        lastMessage.guildId === msg.guildId
                             ? ""
                             : `***${
+                                msg.guildId in SERVERS_HEADERS ?
                                   SERVERS_HEADERS[
                                       msg.guildId as ServersHeadersKey
-                                  ] ?? `❓ ${msg.guild.name}`
-                              }***`
+                                  ]  : `❓ ${msg.guild.name}`
+                            }***`
                     }\n${msg.content}`,
                     username: `${msg.author.displayName} (@${msg.author.username})`,
                     avatarURL: msg.author.displayAvatarURL(),
