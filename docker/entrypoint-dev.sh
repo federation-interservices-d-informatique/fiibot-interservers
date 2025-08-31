@@ -6,5 +6,5 @@ do
     echo "PostgreSQL is starting... Waiting"
     sleep 1
 done
-npm run migrate:dev
+bun run migrate:dev
 bun watch src/index.ts
