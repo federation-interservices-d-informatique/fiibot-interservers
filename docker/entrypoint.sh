@@ -9,7 +9,7 @@ do
 done
 
 echo "- Running prisma migrations"
-./node_modules/.bin/prisma migrate deploy > "/tmp/migrations.log" 2>&1
+bun run prisma migrate deploy > "/tmp/migrations.log" 2>&1
 echo "- Finished running migrations"
 
-node "${DIR}/dist/index.js"
+bun "src/index.ts"

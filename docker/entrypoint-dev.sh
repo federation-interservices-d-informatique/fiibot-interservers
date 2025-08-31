@@ -7,4 +7,4 @@ do
     sleep 1
 done
 npm run migrate:dev
-tsc-watch --onSuccess "npm run start-build"
+bun watch src/index.ts
