@@ -126,7 +126,7 @@ export default class InterserverCommand extends BotInteraction {
                     content: `La fréquence ${name} existe déjà et contient les canaux ${frequency.channels
                         .map((c) => `<#${c}>`)
                         .join(" ")} `,
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
                 return;
             }
@@ -141,7 +141,7 @@ export default class InterserverCommand extends BotInteraction {
                 });
                 await interaction.reply({
                     content: `OK! Fréquence ${name} créée!`,
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             } catch (e) {
                 if (e instanceof Error) {
@@ -152,7 +152,7 @@ export default class InterserverCommand extends BotInteraction {
 
                     await interaction.reply({
                         content: `Erreur: ${e}`,
-                        ephemeral: true
+                        flags: MessageFlags.Ephemeral
                     });
                 }
             }
@@ -167,7 +167,7 @@ export default class InterserverCommand extends BotInteraction {
             ) {
                 await interaction.reply({
                     content: "La fréquence n'existe pas!",
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             }
             await this.client.prisma.frequency.update({
@@ -181,7 +181,7 @@ export default class InterserverCommand extends BotInteraction {
                 }
             });
 
-            await interaction.reply({ content: "OK!", ephemeral: true });
+            await interaction.reply({ content: "OK!", flags: MessageFlags.Ephemeral });
         } else if (interaction.options.getSubcommand() === "info") {
             const name = interaction.options.getString("name");
             if (!name) return;
@@ -193,7 +193,7 @@ export default class InterserverCommand extends BotInteraction {
             if (!frequency) {
                 await interaction.reply({
                     content: "La fréquence n'existe pas!",
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             } else {
                 await interaction.reply({
@@ -202,7 +202,7 @@ export default class InterserverCommand extends BotInteraction {
                     }> (${frequency.ownerid})\nCanaux: ${frequency.channels
                         .map((c) => `<#${c}>`)
                         .join(" ")}`,
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             }
         } else if (interaction.options.getSubcommand() === "leave") {
@@ -231,7 +231,7 @@ export default class InterserverCommand extends BotInteraction {
                 });
                 await interaction.reply({
                     content: "Ok!",
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             } catch (e) {
                 if (e instanceof Error) {
@@ -263,7 +263,7 @@ export default class InterserverCommand extends BotInteraction {
                 });
                 await interaction.reply({
                     content: "Ok!",
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             } catch (e) {
                 if (e instanceof Error) {
