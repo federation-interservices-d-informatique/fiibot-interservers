@@ -17,7 +17,6 @@ RUN apk update && \
 RUN adduser -D -H bot bot
 
 COPY --from=build --chown=bot:bot /app/bot/package.json ./package.json
-COPY --from=build --chown=bot:bot /app/bot/package-lock.json ./package-lock.json
 RUN bun install --production
 
 COPY --from=build --chown=bot:bot /app/bot/src ./src
