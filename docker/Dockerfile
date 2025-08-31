@@ -1,4 +1,4 @@
-FROM oven/bun:1 as build
+FROM oven/bun:1-alpine as build
 WORKDIR /app/bot
 
 COPY ./src ./src
@@ -10,7 +10,7 @@ COPY ./docker/healthcheck.sh ./
 RUN bun install
 RUN bun prisma generate
 
-FROM oven/bun:1 as prod
+FROM oven/bun:1-alpine as prod
 WORKDIR /usr/src/bot
 RUN apk update && \
     apk add --no-cache postgresql curl
